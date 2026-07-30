@@ -4,7 +4,7 @@ import { fetchPosts, fetchJournals, type SortKey } from '@/lib/posts/query'
 import PostFilters from '@/components/PostFilters'
 import PostList from '@/components/PostList'
 
-export default async function PostsPage({
+export default async function StatsPage({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string | undefined }>
@@ -17,7 +17,7 @@ export default async function PostsPage({
       journal: params.journal,
       yearFrom: params.yearFrom ? parseInt(params.yearFrom, 10) : undefined,
       yearTo: params.yearTo ? parseInt(params.yearTo, 10) : undefined,
-      sort: (params.sort as SortKey) ?? 'recent',
+      sort: (params.sort as SortKey) ?? 'citation',
     }),
     fetchJournals(),
   ])
@@ -25,7 +25,10 @@ export default async function PostsPage({
   return (
     <main style={{ maxWidth: 760, margin: '40px auto', fontFamily: 'sans-serif', padding: '0 20px' }}>
       <p><Link href="/">← 홈으로</Link></p>
-      <h1>대시보드</h1>
+      <h1>통계</h1>
+      <p style={{ fontSize: 13, color: '#888', marginTop: -8 }}>
+        저널·연도·인용수 조건을 조합해서 게시물을 뽑아볼 수 있습니다.
+      </p>
 
       <Suspense fallback={<div style={{ height: 120 }} />}>
         <PostFilters journals={journals} />

@@ -110,21 +110,40 @@ export default function PostEditor({ post }: { post: Post }) {
 }
 
   async function handlePublish() {
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+
     if (!title.trim() || !content.trim()) {
       alert('제목과 내용을 입력해주세요.')
       return
     }
     setPublishing(true)
-    await supabase
-      .from('posts')
-      .update({
-          title, content, journal, doi, authors,
-          pub_date: pubDate, pmid,
-          citation_count: citationCount,
-          citation_updated_at: citationUpdatedAt,
-        })
-      .eq('id', post.id)
+
+  const { data, error } = await supabase
+    .from('posts')
+    .update({
+      title, content, journal, doi, authors,
+      pub_date: pubDate, pmid,
+      citation_count: citationCount,
+      citation_updated_at: citationUpdatedAt,
+      status: 'published',
+    })
+    .eq('id', post.id)
+    .select()
+
     setPublishing(false)
+
+    if (error) {
+      console.error('게시 실패:', error.message, error.code, error.details)
+      alert('게시에 실패했습니다. 콘솔을 확인해주세요.')
+      return
+    }
+
+    if (!data || data.length === 0) {
+      console.error('게시 실패: 업데이트된 행이 0개입니다. RLS 권한 문제일 가능성이 높습니다.')
+      alert('게시에 실패했습니다 (권한 문제로 보입니다). 콘솔을 확인해주세요.')
+      return
+    }
+
     router.push('/')
     router.refresh()
   }

@@ -20,12 +20,13 @@ export default async function Home() {
   return (
     <main style={{ padding: 40, fontFamily: 'sans-serif' }}>
       <h1>Online Journal Club</h1>
-      <p><Link href="/posts">최근 글 보기</Link></p>
+      <p><Link href="/posts">최근 글 보기</Link> · <Link href="/stats">통계</Link> · <Link href="/search">검색</Link> · <Link href="/ranking">랭킹</Link> · <Link href="/users">사용자</Link></p>
       {user ? (
         <div>
           <p>{displayName}님, 환영합니다.</p>
           <div style={{ display: 'flex', gap: 12 }}>
             <NewPostButton />
+            <Link href="/mypage">마이페이지</Link>
             <LogoutButton />
           </div>
         </div>
