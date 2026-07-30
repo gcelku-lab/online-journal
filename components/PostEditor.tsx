@@ -15,6 +15,8 @@ type Post = {
   authors: string[] | null
   pub_date: string | null
   pmid: string | null
+  citation_count: number | null
+  citation_updated_at: string | null
 }
 
 type PubmedResult = {
@@ -38,6 +40,9 @@ export default function PostEditor({ post }: { post: Post }) {
   const [authors, setAuthors] = useState<string[]>(post.authors ?? [])
   const [pubDate, setPubDate] = useState(post.pub_date ?? '')
   const [pmid, setPmid] = useState(post.pmid ?? '')
+  const [citationCount, setCitationCount] = useState<number | null>(post.citation_count)
+  const [citationUpdatedAt, setCitationUpdatedAt] = useState<string | null>(post.citation_updated_at)
+  const [fetchingCitation, setFetchingCitation] = useState(false)
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved'>('idle')
   const [publishing, setPublishing] = useState(false)
   const isFirstRun = useRef(true)
@@ -53,10 +58,21 @@ export default function PostEditor({ post }: { post: Post }) {
     if (debounceRef.current) clearTimeout(debounceRef.current)
 
     debounceRef.current = setTimeout(async () => {
-      await supabase
+      const { error } = await supabase
         .from('posts')
-        .update({ title, content, journal, doi, authors, pub_date: pubDate, pmid })
+        .update({
+          title, content, journal, doi, authors,
+          pub_date: pubDate, pmid,
+          citation_count: citationCount,
+          citation_updated_at: citationUpdatedAt,
+        })
         .eq('id', post.id)
+
+      if (error) {
+        console.error('저장 실패:', error.message, error.code, error.details)
+        setSaveState('idle')
+        return
+      }
       setSaveState('saved')
     }, 1500)
 
@@ -64,16 +80,34 @@ export default function PostEditor({ post }: { post: Post }) {
       if (debounceRef.current) clearTimeout(debounceRef.current)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [title, content, journal, doi, authors, pubDate, pmid])
+  }, [title, content, journal, doi, authors, pubDate, pmid, citationCount, citationUpdatedAt])
+
+  async function fetchCitation(targetDoi: string) {
+  if (!targetDoi.trim()) return
+  setFetchingCitation(true)
+  try {
+    const res = await fetch(`/api/citation?doi=${encodeURIComponent(targetDoi)}`)
+    const data = await res.json()
+    if (typeof data.citationCount === 'number') {
+      setCitationCount(data.citationCount)
+      setCitationUpdatedAt(new Date().toISOString())
+    } else {
+      alert('인용수를 찾을 수 없습니다. DOI를 확인해주세요.')
+    }
+  } finally {
+    setFetchingCitation(false)
+  }
+}
 
   function handlePubmedSelect(result: PubmedResult) {
-    setTitle(result.title)
-    setJournal(result.journal)
-    setDoi(result.doi ?? '')
-    setAuthors(result.authors)
-    setPubDate(result.pubDate)
-    setPmid(result.pmid)
-  }
+  setTitle(result.title)
+  setJournal(result.journal)
+  setDoi(result.doi ?? '')
+  setAuthors(result.authors)
+  setPubDate(result.pubDate)
+  setPmid(result.pmid)
+  if (result.doi) fetchCitation(result.doi)
+}
 
   async function handlePublish() {
     if (!title.trim() || !content.trim()) {
@@ -83,7 +117,12 @@ export default function PostEditor({ post }: { post: Post }) {
     setPublishing(true)
     await supabase
       .from('posts')
-      .update({ title, content, journal, doi, authors, pub_date: pubDate, pmid, status: 'published' })
+      .update({
+          title, content, journal, doi, authors,
+          pub_date: pubDate, pmid,
+          citation_count: citationCount,
+          citation_updated_at: citationUpdatedAt,
+        })
       .eq('id', post.id)
     setPublishing(false)
     router.push('/')
@@ -145,6 +184,30 @@ export default function PostEditor({ post }: { post: Post }) {
           {doi && <span>{pubDate && ' · '}DOI: {doi}</span>}
         </div>
       </div>
+
+      <div style={{ marginTop: 4 }}>
+  {citationCount !== null ? (
+    <span>
+      인용 {citationCount.toLocaleString()}회
+      {citationUpdatedAt && (
+        <span style={{ color: '#666' }}>
+          {' '}({new Date(citationUpdatedAt).toLocaleDateString('ko-KR')} 기준)
+        </span>
+      )}
+    </span>
+  ) : (
+    <span style={{ color: '#666' }}>인용수 정보 없음</span>
+  )}
+  {doi && (
+    <button
+      onClick={() => fetchCitation(doi)}
+      disabled={fetchingCitation}
+      style={{ marginLeft: 8, fontSize: 11, background: 'none', border: 'none', color: '#69f', cursor: 'pointer', padding: 0 }}
+    >
+      {fetchingCitation ? '조회 중...' : '새로고침'}
+    </button>
+    )}
+      </div> 
 
       <textarea
         placeholder="내용을 작성하세요..."
