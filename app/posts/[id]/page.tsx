@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import PostContent from '@/components/PostContent'
 
 export default async function PostPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -18,7 +19,22 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
     .eq('id', post.author_id)
     .single()
 
+    let figures: { label: string; image_url: string }[] = []
+    if (post.doi) {
+      const { data: figData, error: figError } = await supabase
+        .from('figures')
+        .select('label, image_url')
+        .eq('doi', post.doi)
+      if (figError) {
+        console.error('figure 조회 실패:', figError.message, figError.code)
+      } else {
+        figures = figData ?? []
+      }
+    }
+  
+
   const isAuthor = user?.id === post.author_id
+
 
   return (
     <main style={{ maxWidth: 720, margin: '40px auto', fontFamily: 'sans-serif', padding: '0 20px' }}>
@@ -35,8 +51,8 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
 
       {isAuthor && <p><Link href={`/posts/${post.id}/edit`}>수정하기</Link></p>}
 
-      <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.7, marginTop: 24 }}>
-        {post.content}
+      <div style={{ marginTop: 24 }}>
+        <PostContent content={post.content} figures={figures} />
       </div>
     </main>
   )
