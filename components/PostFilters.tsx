@@ -54,7 +54,15 @@ export default function PostFilters({
   const hasActiveFilter = keyword || journal || yearFrom || yearTo || currentSort !== 'recent'
 
   return (
-    <div style={{ border: '1px solid #333', borderRadius: 8, padding: 16, marginBottom: 24 }}>
+    <div
+      style={{
+        border: '1px solid var(--border)',
+        borderRadius: 8,
+        padding: 16,
+        marginBottom: 24,
+        background: 'var(--surface)',
+      }}
+    >
       <div style={{ marginBottom: 12 }}>
         <input
           type="text"
@@ -63,25 +71,22 @@ export default function PostFilters({
           autoFocus={autoFocusKeyword}
           onChange={(e) => setKeyword(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && applyFilters()}
-          style={{ width: '100%', padding: 8, fontSize: 15, boxSizing: 'border-box' }}
+          style={{ width: '100%', fontSize: 15 }}
         />
       </div>
 
-      <div style={{ marginBottom: 12 }}>
-        <span style={{ fontSize: 13, color: '#888', marginRight: 8 }}>정렬</span>
+      <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+        <span style={{ fontSize: 13, color: 'var(--text-muted)', marginRight: 2 }}>정렬</span>
         {SORT_OPTIONS.map((opt) => (
           <button
             key={opt.key}
             onClick={() => applyFilters({ sort: opt.key === 'recent' ? '' : opt.key })}
             style={{
-              marginRight: 6,
-              padding: '4px 10px',
+              padding: '4px 12px',
               fontSize: 13,
-              borderRadius: 4,
-              border: '1px solid #444',
-              background: currentSort === opt.key ? '#2563eb' : 'transparent',
+              background: currentSort === opt.key ? 'var(--accent)' : '#fff',
               color: currentSort === opt.key ? '#fff' : 'inherit',
-              cursor: 'pointer',
+              borderColor: currentSort === opt.key ? 'var(--accent)' : 'var(--border-strong)',
             }}
           >
             {opt.label}
@@ -96,7 +101,7 @@ export default function PostFilters({
           value={journal}
           onChange={(e) => setJournal(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && applyFilters()}
-          style={{ flex: '1 1 220px', padding: 6, minWidth: 0 }}
+          style={{ flex: '1 1 220px', minWidth: 0 }}
         />
         <datalist id="journal-options">
           {journals.map((j) => (
@@ -110,26 +115,24 @@ export default function PostFilters({
           value={yearFrom}
           onChange={(e) => setYearFrom(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && applyFilters()}
-          style={{ width: 100, padding: 6 }}
+          style={{ width: 110 }}
         />
-        <span style={{ color: '#888' }}>~</span>
+        <span style={{ color: 'var(--text-muted)' }}>~</span>
         <input
           type="number"
           placeholder="끝 연도"
           value={yearTo}
           onChange={(e) => setYearTo(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && applyFilters()}
-          style={{ width: 100, padding: 6 }}
+          style={{ width: 110 }}
         />
 
-        <button onClick={() => applyFilters()} style={{ padding: '6px 14px', cursor: 'pointer' }}>
-          적용
-        </button>
+        <button onClick={() => applyFilters()}>적용</button>
 
         {hasActiveFilter && (
           <button
             onClick={resetFilters}
-            style={{ padding: '6px 10px', fontSize: 13, background: 'none', border: 'none', color: '#69f', cursor: 'pointer' }}
+            style={{ fontSize: 13, background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer', padding: '6px 4px' }}
           >
             초기화
           </button>

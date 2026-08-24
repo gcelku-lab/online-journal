@@ -67,32 +67,28 @@ export default function PostList({
   }
 
   if (items.length === 0) {
-    return <p style={{ color: '#888', fontSize: 14, padding: '24px 0' }}>조건에 맞는 글이 없습니다.</p>
+    return (
+      <p style={{ color: 'var(--text-muted)', fontSize: 14, padding: '20px 0' }}>
+        아직 글이 없습니다.
+      </p>
+    )
   }
 
   return (
     <div>
       {selectable && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-          <label style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
-            <input type="checkbox" checked={selected.size === items.length} onChange={toggleAll} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+          <label style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', color: 'var(--text-muted)' }}>
+            <input type="checkbox" checked={selected.size === items.length} onChange={toggleAll} style={{ padding: 0 }} />
             전체 선택
           </label>
           {selected.size > 0 && (
             <button
               onClick={handleDeleteSelected}
               disabled={deleting}
-              style={{
-                fontSize: 13,
-                color: '#e11',
-                background: 'none',
-                border: '1px solid #e11',
-                borderRadius: 4,
-                padding: '4px 10px',
-                cursor: 'pointer',
-              }}
+              style={{ fontSize: 13, color: 'var(--accent)', borderColor: 'var(--accent)', padding: '3px 10px' }}
             >
-              {deleting ? '삭제 중...' : `선택 삭제 (${selected.size})`}
+              {deleting ? '삭제 중' : `선택 삭제 (${selected.size})`}
             </button>
           )}
         </div>
@@ -100,28 +96,44 @@ export default function PostList({
 
       <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
         {items.map((post) => (
-          <li key={post.id} style={{ padding: '16px 0', borderBottom: '1px solid #eee', display: 'flex', gap: 10 }}>
+          <li
+            key={post.id}
+            style={{ padding: '14px 0', borderBottom: '1px solid var(--border)', display: 'flex', gap: 10 }}
+          >
             {selectable && (
               <input
                 type="checkbox"
                 checked={selected.has(post.id)}
                 onChange={() => toggle(post.id)}
-                style={{ marginTop: 6, flexShrink: 0 }}
+                style={{ marginTop: 5, flexShrink: 0, padding: 0 }}
               />
             )}
             <div style={{ flex: 1, minWidth: 0 }}>
               <Link
                 href={`/posts/${post.id}`}
-                style={{ fontSize: 17, fontWeight: 500, lineHeight: 1.4, overflowWrap: 'anywhere', display: 'block' }}
+                style={{ fontSize: 16, fontWeight: 600, lineHeight: 1.4, overflowWrap: 'anywhere', display: 'block' }}
               >
                 {post.title || '(제목 없음)'}
                 {post.status === 'draft' && (
-                  <span style={{ fontSize: 12, color: '#b45309', marginLeft: 6 }}>초안</span>
+                  <span
+                    style={{
+                      fontSize: 11,
+                      color: 'var(--accent)',
+                      background: 'var(--accent-soft)',
+                      padding: '1px 6px',
+                      borderRadius: 3,
+                      marginLeft: 8,
+                      verticalAlign: 'middle',
+                      fontWeight: 500,
+                    }}
+                  >
+                    초안
+                  </span>
                 )}
               </Link>
 
               {post.journal && (
-                <p style={{ fontSize: 13, color: '#888', margin: '4px 0 0', overflowWrap: 'anywhere' }}>
+                <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: '4px 0 0', overflowWrap: 'anywhere' }}>
                   {post.journal}
                   {post.pub_date && ` · ${post.pub_date}`}
                   {typeof post.citation_count === 'number' && ` · 인용 ${post.citation_count.toLocaleString()}회`}
@@ -130,7 +142,7 @@ export default function PostList({
 
               {post.authors && post.authors.length > 0 && <AuthorList authors={post.authors} />}
 
-              <p style={{ fontSize: 12, color: '#aaa', margin: '4px 0 0' }}>
+              <p style={{ fontSize: 12, color: 'var(--border-strong)', margin: '4px 0 0' }}>
                 정리: {post.author_name} · {new Date(post.updated_at).toLocaleDateString('ko-KR')}
               </p>
             </div>

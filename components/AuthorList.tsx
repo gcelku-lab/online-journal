@@ -8,7 +8,7 @@ export default function AuthorList({ authors }: { authors: string[] }) {
   if (!authors || authors.length === 0) return null
 
   return (
-    <div style={{ fontSize: 12, color: '#888', marginTop: 2, overflowWrap: 'anywhere' }}>
+    <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 3, overflowWrap: 'anywhere' }}>
       {expanded ? authors.join(', ') : `${authors[0]}${authors.length > 1 ? ' et al.' : ''}`}
       {authors.length > 1 && (
         <button
@@ -21,12 +21,12 @@ export default function AuthorList({ authors }: { authors: string[] }) {
             fontSize: 11,
             background: 'none',
             border: 'none',
-            color: '#69f',
+            color: 'var(--accent)',
             cursor: 'pointer',
             padding: 0,
           }}
         >
-          {expanded ? '접기' : `저자 ${authors.length}명 펼치기`}
+          {expanded ? '접기' : `저자 ${authors.length}명 전체보기`}
         </button>
       )}
     </div>

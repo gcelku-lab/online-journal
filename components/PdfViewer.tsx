@@ -101,24 +101,32 @@ export default function PdfViewer({
   }, [pdfDoc, pageNum])
 
   return (
-    <div style={{ border: '1px solid #333', borderRadius: 8, padding: 16, marginBottom: 24 }}>
-      <p style={{ fontSize: 14, fontWeight: 500, marginBottom: 8 }}>논문 PDF</p>
+    <div
+      style={{
+        border: '1px solid var(--border)',
+        borderRadius: 8,
+        padding: 16,
+        marginBottom: 24,
+        background: 'var(--surface)',
+      }}
+    >
+      <p style={{ fontSize: 14, fontWeight: 600, marginTop: 0, marginBottom: 10 }}>논문 PDF</p>
 
       {!pdfDoc && (
         <div>
-          <input type="file" accept="application/pdf" onChange={handleFileChange} />
-          <p style={{ fontSize: 12, color: '#888', marginTop: 8 }}>
+          <input type="file" accept="application/pdf" onChange={handleFileChange} style={{ border: 'none', padding: 0 }} />
+          <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 8, marginBottom: 0 }}>
             PDF는 서버에 저장되지 않습니다. 브라우저에서만 열리며, 잘라낸 이미지만 저장됩니다.
           </p>
         </div>
       )}
 
-      {loading && <p style={{ fontSize: 13, color: '#888' }}>PDF 여는 중...</p>}
+      {loading && <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>PDF 여는 중...</p>}
 
       {pdfDoc && (
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 13, color: '#888', overflowWrap: 'anywhere' }}>{fileName}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 13, color: 'var(--text-muted)', overflowWrap: 'anywhere' }}>{fileName}</span>
             <button onClick={() => onPageChange(Math.max(1, pageNum - 1))} disabled={pageNum <= 1}>
               ← 이전
             </button>
@@ -135,13 +143,13 @@ export default function PdfViewer({
                 onNumPagesChange(0)
                 setFileName('')
               }}
-              style={{ fontSize: 12, background: 'none', border: 'none', color: '#69f', cursor: 'pointer' }}
+              style={{ fontSize: 12, background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer', padding: 0 }}
             >
               다른 PDF 열기
             </button>
           </div>
 
-          <div style={{ overflow: 'auto', maxHeight: 600, border: '1px solid #222' }}>
+          <div style={{ overflow: 'auto', maxHeight: 600, border: '1px solid var(--border)', background: '#fff' }}>
             <canvas ref={canvasRef} style={{ display: 'block', width: '100%', height: 'auto' }} />
           </div>
         </div>

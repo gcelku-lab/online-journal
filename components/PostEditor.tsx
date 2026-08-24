@@ -47,15 +47,15 @@ export default function PostEditor({ post }: { post: Post }) {
   const [fetchingCitation, setFetchingCitation] = useState(false)
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved'>('idle')
   const [publishing, setPublishing] = useState(false)
-  const isFirstRun = useRef(true)
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const titleRef = useRef<HTMLTextAreaElement | null>(null)
-  const [pageCanvas, setPageCanvas] = useState<HTMLCanvasElement | null>(null)
-  const [renderedPage, setRenderedPage] = useState(0)
   const [cropLabel, setCropLabel] = useState<string | null>(null)
   const [newFigureLabel, setNewFigureLabel] = useState('')
   const [pdfPageNum, setPdfPageNum] = useState(1)
   const [pdfNumPages, setPdfNumPages] = useState(0)
+  const [pageCanvas, setPageCanvas] = useState<HTMLCanvasElement | null>(null)
+  const [renderedPage, setRenderedPage] = useState(0)
+  const isFirstRun = useRef(true)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const titleRef = useRef<HTMLTextAreaElement | null>(null)
 
   useEffect(() => {
     const el = titleRef.current
@@ -99,31 +99,31 @@ export default function PostEditor({ post }: { post: Post }) {
   }, [title, content, journal, doi, authors, pubDate, pmid, citationCount, citationUpdatedAt])
 
   async function fetchCitation(targetDoi: string) {
-  if (!targetDoi.trim()) return
-  setFetchingCitation(true)
-  try {
-    const res = await fetch(`/api/citation?doi=${encodeURIComponent(targetDoi)}`)
-    const data = await res.json()
-    if (typeof data.citationCount === 'number') {
-      setCitationCount(data.citationCount)
-      setCitationUpdatedAt(new Date().toISOString())
-    } else {
-      alert('인용수를 찾을 수 없습니다. DOI를 확인해주세요.')
+    if (!targetDoi.trim()) return
+    setFetchingCitation(true)
+    try {
+      const res = await fetch(`/api/citation?doi=${encodeURIComponent(targetDoi)}`)
+      const data = await res.json()
+      if (typeof data.citationCount === 'number') {
+        setCitationCount(data.citationCount)
+        setCitationUpdatedAt(new Date().toISOString())
+      } else {
+        alert('인용수를 찾을 수 없습니다. DOI를 확인해주세요.')
+      }
+    } finally {
+      setFetchingCitation(false)
     }
-  } finally {
-    setFetchingCitation(false)
   }
-}
 
   function handlePubmedSelect(result: PubmedResult) {
-  setTitle(result.title)
-  setJournal(result.journal)
-  setDoi(result.doi ?? '')
-  setAuthors(result.authors)
-  setPubDate(result.pubDate)
-  setPmid(result.pmid)
-  if (result.doi) fetchCitation(result.doi)
-}
+    setTitle(result.title)
+    setJournal(result.journal)
+    setDoi(result.doi ?? '')
+    setAuthors(result.authors)
+    setPubDate(result.pubDate)
+    setPmid(result.pmid)
+    if (result.doi) fetchCitation(result.doi)
+  }
 
   function startCrop() {
     const label = newFigureLabel.trim()
@@ -173,17 +173,17 @@ export default function PostEditor({ post }: { post: Post }) {
     }
     setPublishing(true)
 
-  const { data, error } = await supabase
-    .from('posts')
-    .update({
-      title, content, journal, doi, authors,
-      pub_date: pubDate, pmid,
-      citation_count: citationCount,
-      citation_updated_at: citationUpdatedAt,
-      status: 'published',
-    })
-    .eq('id', post.id)
-    .select()
+    const { data, error } = await supabase
+      .from('posts')
+      .update({
+        title, content, journal, doi, authors,
+        pub_date: pubDate, pmid,
+        citation_count: citationCount,
+        citation_updated_at: citationUpdatedAt,
+        status: 'published',
+      })
+      .eq('id', post.id)
+      .select()
 
     setPublishing(false)
 
@@ -204,14 +204,27 @@ export default function PostEditor({ post }: { post: Post }) {
   }
 
   return (
-    <main style={{ maxWidth: 720, margin: '40px auto', fontFamily: 'sans-serif', padding: '0 20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <span style={{ fontSize: 13, color: '#888' }}>
-          {saveState === 'saving' && '저장 중...'}
+    <main style={{ maxWidth: 760, margin: '32px auto 80px', padding: '0 20px' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 24,
+          paddingBottom: 12,
+          borderBottom: '1px solid var(--border)',
+        }}
+      >
+        <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>
+          {saveState === 'saving' && '저장 중'}
           {saveState === 'saved' && '저장됨'}
         </span>
-        <button onClick={handlePublish} disabled={publishing}>
-          {publishing ? '게시 중...' : '게시하기'}
+        <button
+          onClick={handlePublish}
+          disabled={publishing}
+          style={{ background: 'var(--accent)', color: '#fff', borderColor: 'var(--accent)', fontWeight: 500 }}
+        >
+          {publishing ? '게시 중' : '게시하기'}
         </button>
       </div>
 
@@ -219,24 +232,22 @@ export default function PostEditor({ post }: { post: Post }) {
 
       <textarea
         ref={titleRef}
-        placeholder="제목"
+        placeholder="논문 제목"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         rows={1}
         style={{
           width: '100%',
-          fontSize: 22,
-          padding: 8,
-          marginBottom: 8,
+          fontSize: 24,
+          fontWeight: 700,
+          letterSpacing: '-0.02em',
+          padding: '4px 0',
+          marginBottom: 4,
           border: 'none',
-          borderBottom: '1px solid #333',
           background: 'transparent',
-          color: 'inherit',
-          lineHeight: 1.4,
+          lineHeight: 1.35,
           resize: 'none',
           overflow: 'hidden',
-          fontFamily: 'inherit',
-          boxSizing: 'border-box',
         }}
       />
 
@@ -248,45 +259,53 @@ export default function PostEditor({ post }: { post: Post }) {
         style={{
           width: '100%',
           fontSize: 14,
-          padding: 8,
+          padding: '4px 0',
           border: 'none',
-          borderBottom: '1px solid #222',
           background: 'transparent',
-          color: '#aaa',
+          color: 'var(--text-muted)',
         }}
       />
 
-      <div style={{ padding: '8px 8px 16px', fontSize: 12, color: '#888' }}>
+      <div
+        style={{
+          fontSize: 12,
+          color: 'var(--text-muted)',
+          padding: '12px 0 16px',
+          borderBottom: '1px solid var(--border)',
+          marginBottom: 24,
+        }}
+      >
         <AuthorList authors={authors} />
+
         <div style={{ marginTop: 4, overflowWrap: 'anywhere' }}>
           {pubDate && <span>{pubDate}</span>}
           {doi && <span>{pubDate && ' · '}DOI: {doi}</span>}
         </div>
-      </div>
 
-      <div style={{ marginTop: 4 }}>
-  {citationCount !== null ? (
-    <span>
-      인용 {citationCount.toLocaleString()}회
-      {citationUpdatedAt && (
-        <span style={{ color: '#666' }}>
-          {' '}({new Date(citationUpdatedAt).toLocaleDateString('ko-KR')} 기준)
-        </span>
-      )}
-    </span>
-  ) : (
-    <span style={{ color: '#666' }}>인용수 정보 없음</span>
-  )}
-  {doi && (
-    <button
-      onClick={() => fetchCitation(doi)}
-      disabled={fetchingCitation}
-      style={{ marginLeft: 8, fontSize: 11, background: 'none', border: 'none', color: '#69f', cursor: 'pointer', padding: 0 }}
-    >
-      {fetchingCitation ? '조회 중...' : '새로고침'}
-    </button>
-    )}
-      </div> 
+        <div style={{ marginTop: 4 }}>
+          {citationCount !== null ? (
+            <span>
+              인용 {citationCount.toLocaleString()}회
+              {citationUpdatedAt && (
+                <span style={{ color: 'var(--border-strong)' }}>
+                  {' '}({new Date(citationUpdatedAt).toLocaleDateString('ko-KR')} 기준)
+                </span>
+              )}
+            </span>
+          ) : (
+            <span style={{ color: 'var(--border-strong)' }}>인용수 정보 없음</span>
+          )}
+          {doi && (
+            <button
+              onClick={() => fetchCitation(doi)}
+              disabled={fetchingCitation}
+              style={{ marginLeft: 8, fontSize: 11, background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer', padding: 0 }}
+            >
+              {fetchingCitation ? '조회 중' : '새로고침'}
+            </button>
+          )}
+        </div>
+      </div>
 
       <PdfViewer
         onPageRender={(canvas, n) => { setPageCanvas(canvas); setRenderedPage(n) }}
@@ -295,22 +314,46 @@ export default function PostEditor({ post }: { post: Post }) {
         onNumPagesChange={setPdfNumPages}
       />
 
-      <div style={{ border: '1px solid #333', borderRadius: 8, padding: 16, marginBottom: 24 }}>
-        <p style={{ fontSize: 14, fontWeight: 500, marginBottom: 8 }}>Figure 잘라내기</p>
+      <div
+        style={{
+          border: '1px solid var(--border)',
+          borderRadius: 8,
+          padding: 16,
+          marginBottom: 24,
+          background: 'var(--surface)',
+        }}
+      >
+        <p style={{ fontSize: 14, fontWeight: 600, marginTop: 0, marginBottom: 10 }}>Figure 잘라내기</p>
         <div style={{ display: 'flex', gap: 8 }}>
           <input
             type="text"
             placeholder="예: Figure 1A"
             value={newFigureLabel}
             onChange={(e) => setNewFigureLabel(e.target.value)}
-            style={{ flex: 1, padding: 6, minWidth: 0 }}
+            style={{ flex: 1, minWidth: 0 }}
           />
           <button onClick={startCrop}>영역 선택하기</button>
         </div>
-        <p style={{ fontSize: 12, color: '#888', marginTop: 8 }}>
-          저장하면 본문 끝에 {'<|라벨|>'} 이 자동으로 추가되고, 글 보기 화면에서 이미지로 표시됩니다.
+        <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 8, marginBottom: 0 }}>
+          저장하면 본문 끝에 {'<|라벨|>'} 이 추가되고, 글 보기 화면에서 이미지로 표시됩니다.
         </p>
       </div>
+
+      <textarea
+        placeholder="논문을 읽고 정리한 내용을 작성하세요."
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+        style={{
+          width: '100%',
+          minHeight: 420,
+          fontSize: 15,
+          padding: 12,
+          border: '1px solid var(--border)',
+          borderRadius: 8,
+          resize: 'vertical',
+          lineHeight: 1.75,
+        }}
+      />
 
       {cropLabel && pageCanvas && (
         <FigureCropper
@@ -325,23 +368,6 @@ export default function PostEditor({ post }: { post: Post }) {
           pageInfo={`${pdfPageNum} / ${pdfNumPages}`}
         />
       )}
-
-      <textarea
-        placeholder="내용을 작성하세요..."
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        style={{
-          width: '100%',
-          minHeight: 400,
-          fontSize: 16,
-          padding: 8,
-          border: 'none',
-          resize: 'vertical',
-          background: 'transparent',
-          color: 'inherit',
-          lineHeight: 1.7,
-        }}
-      />
     </main>
   )
 }
