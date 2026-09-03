@@ -12,7 +12,7 @@ export default async function RankingPage() {
   const thisMonthLabel = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long' })
 
   return (
-    <main style={{ maxWidth: 720, margin: '40px auto', fontFamily: 'sans-serif', padding: '0 20px' }}>
+    <main style={{ maxWidth: 900, margin: '40px auto', fontFamily: 'sans-serif', padding: '0 20px' }}>
       <p><Link href="/">← 홈으로</Link></p>
       <h1>랭킹</h1>
 
