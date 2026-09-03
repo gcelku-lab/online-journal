@@ -1,41 +1,49 @@
-import Link from 'next/link'
-import { Suspense } from 'react'
-import { fetchPosts, fetchJournals, type SortKey } from '@/lib/posts/query'
-import PostFilters from '@/components/PostFilters'
-import PostList from '@/components/PostList'
+import { fetchJournalStats } from '@/lib/posts/stats'
+import JournalStatList from '@/components/JournalStatList'
 
-export default async function StatsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ [key: string]: string | undefined }>
-}) {
-  const params = await searchParams
-
-  const [posts, journals] = await Promise.all([
-    fetchPosts({
-      keyword: params.q,
-      journal: params.journal,
-      yearFrom: params.yearFrom ? parseInt(params.yearFrom, 10) : undefined,
-      yearTo: params.yearTo ? parseInt(params.yearTo, 10) : undefined,
-      sort: (params.sort as SortKey) ?? 'citation',
-    }),
-    fetchJournals(),
-  ])
+export default async function StatsPage() {
+  const { stats, totalPosts } = await fetchJournalStats()
+  const journalCovered = stats.reduce((sum, s) => sum + s.count, 0)
 
   return (
-    <main style={{ maxWidth: 760, margin: '40px auto', fontFamily: 'sans-serif', padding: '0 20px' }}>
-      <p><Link href="/">← 홈으로</Link></p>
+    <main style={{ maxWidth: 1000, margin: '32px auto 80px', padding: '0 20px' }}>
       <h1>통계</h1>
-      <p style={{ fontSize: 13, color: '#888', marginTop: -8 }}>
-        저널·연도·인용수 조건을 조합해서 게시물을 뽑아볼 수 있습니다.
-      </p>
 
-      <Suspense fallback={<div style={{ height: 120 }} />}>
-        <PostFilters journals={journals} />
-      </Suspense>
+      <div
+        style={{
+          display: 'flex',
+          gap: 32,
+          padding: '16px 20px',
+          background: 'var(--surface)',
+          border: '1px solid var(--border)',
+          borderRadius: 8,
+          marginBottom: 32,
+        }}
+      >
+        <div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>게시된 글</div>
+          <div style={{ fontSize: 22, fontWeight: 700 }}>{totalPosts}편</div>
+        </div>
+        <div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>저널 수</div>
+          <div style={{ fontSize: 22, fontWeight: 700 }}>{stats.length}개</div>
+        </div>
+      </div>
 
-      <p style={{ fontSize: 13, color: '#888' }}>{posts.length}개의 글</p>
-      <PostList posts={posts} />
+      <h2>저널별 정리 편수</h2>
+
+      {stats.length === 0 ? (
+        <p style={{ color: 'var(--text-muted)', fontSize: 14 }}>아직 집계할 데이터가 없습니다.</p>
+      ) : (
+        <>
+          <JournalStatList stats={stats} />
+          {journalCovered < totalPosts && (
+            <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 12 }}>
+              저널 정보가 없는 글 {totalPosts - journalCovered}편은 집계에서 제외했습니다.
+            </p>
+          )}
+        </>
+      )}
     </main>
   )
 }
