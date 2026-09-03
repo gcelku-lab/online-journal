@@ -7,6 +7,7 @@ import PubmedSearchBox from './PubmedSearchBox'
 import AuthorList from './AuthorList'
 import PdfViewer from './PdfViewer'
 import FigureCropper from './FigureCropper'
+import RichEditor, { type RichEditorHandle} from './RichEditor'
 
 type Post = {
   id: string
@@ -56,6 +57,7 @@ export default function PostEditor({ post }: { post: Post }) {
   const isFirstRun = useRef(true)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const titleRef = useRef<HTMLTextAreaElement | null>(null)
+  const editorRef = useRef<RichEditorHandle | null>(null)
 
   useEffect(() => {
     const el = titleRef.current
@@ -160,7 +162,7 @@ export default function PostEditor({ post }: { post: Post }) {
       return
     }
 
-    setContent((prev) => `${prev}\n\n<|${label}|>\n`)
+    editorRef.current?.insertText(`<|${label}|>`)
     setNewFigureLabel('')
   }
 
@@ -339,21 +341,7 @@ export default function PostEditor({ post }: { post: Post }) {
         </p>
       </div>
 
-      <textarea
-        placeholder="논문을 읽고 정리한 내용을 작성하세요."
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        style={{
-          width: '100%',
-          minHeight: 420,
-          fontSize: 15,
-          padding: 12,
-          border: '1px solid var(--border)',
-          borderRadius: 8,
-          resize: 'vertical',
-          lineHeight: 1.75,
-        }}
-      />
+      <RichEditor ref={editorRef} content={content} onChange={setContent} />
 
       {cropLabel && pageCanvas && (
         <FigureCropper

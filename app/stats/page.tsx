@@ -6,7 +6,7 @@ export default async function StatsPage() {
   const journalCovered = stats.reduce((sum, s) => sum + s.count, 0)
 
   return (
-    <main style={{ maxWidth: 1000, margin: '32px auto 80px', padding: '0 20px' }}>
+    <main style={{ maxWidth: 900, margin: '32px auto 80px', padding: '0 20px' }}>
       <h1>통계</h1>
 
       <div

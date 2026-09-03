@@ -99,7 +99,7 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
         </div>
       </div>
 
-      <div style={{ marginTop: 28, fontSize: 15.5 }}>
+      <div style={{ marginTop: 28 }}>
         <PostContent content={post.content} figures={figures} />
       </div>
     </main>

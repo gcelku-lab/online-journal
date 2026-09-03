@@ -100,3 +100,136 @@ textarea:focus {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+
+/* --- 넘버링 스타일 --- */
+@counter-style paren-close {
+  system: extends decimal;
+  suffix: ") ";
+}
+
+@counter-style paren-both {
+  system: extends decimal;
+  prefix: "(";
+  suffix: ") ";
+}
+
+@counter-style bracket {
+  system: extends decimal;
+  prefix: "[";
+  suffix: "] ";
+}
+
+@counter-style circled {
+  system: fixed;
+  symbols: "①" "②" "③" "④" "⑤" "⑥" "⑦" "⑧" "⑨" "⑩" "⑪" "⑫" "⑬" "⑭" "⑮" "⑯" "⑰" "⑱" "⑲" "⑳";
+  suffix: " ";
+}
+
+/* --- 에디터 & 본문 공통 --- */
+.rich-editor {
+  min-height: 420px;
+  padding: 14px;
+  outline: none;
+}
+
+:is(.rich-editor, .post-content) {
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+:is(.rich-editor, .post-content) p {
+  margin: 0 0 0.7em;
+}
+
+:is(.rich-editor, .post-content) p:last-child {
+  margin-bottom: 0;
+}
+
+:is(.rich-editor, .post-content) ol,
+:is(.rich-editor, .post-content) ul {
+  padding-left: 1.7em;
+  margin: 0 0 0.7em;
+}
+
+:is(.rich-editor, .post-content) li {
+  display: list-item;
+  margin-bottom: 0.2em;
+}
+
+:is(.rich-editor, .post-content) li > p {
+  margin: 0;
+}
+
+/* 계층별 넘버링 */
+:is(.rich-editor, .post-content) ol {
+  list-style-type: decimal;
+}
+
+:is(.rich-editor, .post-content) ol ol {
+  list-style-type: paren-close;
+}
+
+:is(.rich-editor, .post-content) ol ol ol {
+  list-style-type: paren-both;
+}
+
+:is(.rich-editor, .post-content) ol ol ol ol {
+  list-style-type: circled;
+}
+
+/* 계층별 불릿 */
+:is(.rich-editor, .post-content) ul {
+  list-style-type: disc;
+}
+
+:is(.rich-editor, .post-content) ul ul {
+  list-style-type: circle;
+}
+
+:is(.rich-editor, .post-content) ul ul ul {
+  list-style-type: square;
+}
+
+:is(.rich-editor, .post-content) sub,
+:is(.rich-editor, .post-content) sup {
+  font-size: 0.75em;
+  line-height: 0;
+}
+
+:is(.rich-editor, .post-content) h1,
+:is(.rich-editor, .post-content) h2,
+:is(.rich-editor, .post-content) h3 {
+  border: none;
+  padding: 0;
+  margin: 1em 0 0.4em;
+}
+
+.rich-editor:focus-visible {
+  outline: none;
+}
+
+/* --- 본문 figure --- */
+.post-figure {
+  margin: 20px 0;
+}
+
+.post-figure img {
+  max-width: 100%;
+  display: block;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.post-figure figcaption {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+.figure-missing {
+  font-size: 13px;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
