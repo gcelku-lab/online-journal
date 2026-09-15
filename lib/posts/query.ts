@@ -10,6 +10,7 @@ export type PostFilters = {
   yearTo?: number
   sort?: SortKey
   includeDrafts?: boolean
+  journalClubOnly?: boolean
 }
 
 export type PostListItem = {
@@ -20,6 +21,8 @@ export type PostListItem = {
   authors: string[] | null
   pub_date: string | null
   citation_count: number | null
+  is_journal_club: boolean
+  journal_club_date: string | null
   status: string
   updated_at: string
   created_at: string
@@ -27,7 +30,6 @@ export type PostListItem = {
   author_name: string
 }
 
-/** "2025 Nov", "2026 Jul 24" 같은 PubMed 날짜 문자열에서 연도만 뽑아냄 */
 export function extractYear(pubDate: string | null): number | null {
   if (!pubDate) return null
   const match = pubDate.match(/\b(19|20)\d{2}\b/)
@@ -39,7 +41,9 @@ export async function fetchPosts(filters: PostFilters = {}): Promise<PostListIte
 
   let query = supabase
     .from('posts')
-    .select('id, title, journal, doi, authors, pub_date, citation_count, status, updated_at, created_at, author_id')
+    .select(
+      'id, title, journal, doi, authors, pub_date, citation_count, is_journal_club, journal_club_date, status, updated_at, created_at, author_id'
+    )
 
   if (!filters.includeDrafts) {
     query = query.eq('status', 'published')
@@ -47,6 +51,10 @@ export async function fetchPosts(filters: PostFilters = {}): Promise<PostListIte
 
   if (filters.authorId) {
     query = query.eq('author_id', filters.authorId)
+  }
+
+  if (filters.journalClubOnly) {
+    query = query.eq('is_journal_club', true)
   }
 
   if (filters.journal) {
@@ -78,7 +86,6 @@ export async function fetchPosts(filters: PostFilters = {}): Promise<PostListIte
 
   const posts = data ?? []
 
-  // 작성자 이름 붙이기
   const authorIds = [...new Set(posts.map((p) => p.author_id))]
   const nameById = new Map<string, string>()
 
@@ -100,7 +107,6 @@ export async function fetchPosts(filters: PostFilters = {}): Promise<PostListIte
     author_name: nameById.get(p.author_id) ?? '알 수 없음',
   }))
 
-  // 연도 필터 (pub_date가 자유 형식 문자열이라 DB가 아닌 여기서 처리)
   if (filters.yearFrom || filters.yearTo) {
     result = result.filter((p) => {
       const year = extractYear(p.pub_date)
@@ -111,7 +117,6 @@ export async function fetchPosts(filters: PostFilters = {}): Promise<PostListIte
     })
   }
 
-  // 출판연도순 정렬 (연도 추출이 필요해서 여기서 처리)
   if (filters.sort === 'pubdate') {
     result.sort((a, b) => (extractYear(b.pub_date) ?? 0) - (extractYear(a.pub_date) ?? 0))
   }
@@ -119,7 +124,6 @@ export async function fetchPosts(filters: PostFilters = {}): Promise<PostListIte
   return result
 }
 
-/** 필터 드롭다운용: 실제로 등록된 저널 목록 */
 export async function fetchJournals(): Promise<string[]> {
   const supabase = await createClient()
   const { data, error } = await supabase

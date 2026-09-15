@@ -41,6 +41,29 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
         <Link href="/posts">← 목록으로</Link>
       </p>
 
+      {post.is_journal_club && (
+        <div
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            fontSize: 14,
+            color: 'var(--accent)',
+            marginBottom: 12,
+            fontWeight: 600,
+          }}
+        >
+          <span className="logo-crimson" style={{ width: 20, height: 20 }} />
+          저널클럽 발표 논문
+          {post.journal_club_date &&
+            ` · ${new Date(post.journal_club_date).toLocaleDateString('ko-KR', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}`}
+        </div>
+      )}
+
       {post.status === 'draft' && (
         <p
           style={{

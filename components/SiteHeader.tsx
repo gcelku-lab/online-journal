@@ -33,17 +33,30 @@ export default function SiteHeader() {
       >
         <Link
           href="/"
-          style={{ fontWeight: 700, fontSize: 16, letterSpacing: '-0.02em', flexShrink: 0 }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            fontWeight: 700,
+            fontSize: 16,
+            letterSpacing: '-0.02em',
+            flexShrink: 0,
+          }}
         >
+          <span className="logo-crimson" style={{ width: 26, height: 26, flexShrink: 0 }} />
           Journal Club
-          <span style={{ color: 'var(--text-muted)', fontWeight: 400, marginLeft: 6, fontSize: 13 }}>
+          <span style={{ color: 'var(--text-muted)', fontWeight: 400, fontSize: 13 }}>
             GCEL @KU
           </span>
         </Link>
 
         <nav style={{ display: 'flex', gap: 16, fontSize: 14, overflowX: 'auto' }}>
           {NAV.map((item) => (
-            <Link key={item.href} href={item.href} style={{ color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+            <Link
+              key={item.href}
+              href={item.href}
+              style={{ color: 'var(--text-muted)', whiteSpace: 'nowrap' }}
+            >
               {item.label}
             </Link>
           ))}

@@ -114,6 +114,19 @@ export default function PostList({
                 style={{ fontSize: 16, fontWeight: 600, lineHeight: 1.4, overflowWrap: 'anywhere', display: 'block' }}
               >
                 {post.title || '(제목 없음)'}
+                {post.is_journal_club && (
+                  <span
+                    className="logo-crimson"
+                    style={{
+                      width: 15,
+                      height: 15,
+                      marginRight: 6,
+                      verticalAlign: 'middle',
+                      flexShrink: 0,
+                    }}
+                    aria-label="저널클럽 발표 논문"
+                  />
+                )}
                 {post.status === 'draft' && (
                   <span
                     style={{

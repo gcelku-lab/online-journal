@@ -14,6 +14,7 @@ export default async function SearchPage({
   const [posts, journals] = await Promise.all([
     fetchPosts({
       keyword: params.q,
+      journalClubOnly: params.jc === '1',
       journal: params.journal,
       yearFrom: params.yearFrom ? parseInt(params.yearFrom, 10) : undefined,
       yearTo: params.yearTo ? parseInt(params.yearTo, 10) : undefined,

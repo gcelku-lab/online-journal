@@ -20,6 +20,8 @@ type Post = {
   pmid: string | null
   citation_count: number | null
   citation_updated_at: string | null
+  is_journal_club: boolean
+  journal_club_date: string | null
 }
 
 type PubmedResult = {
@@ -54,6 +56,8 @@ export default function PostEditor({ post }: { post: Post }) {
   const [pdfNumPages, setPdfNumPages] = useState(0)
   const [pageCanvas, setPageCanvas] = useState<HTMLCanvasElement | null>(null)
   const [renderedPage, setRenderedPage] = useState(0)
+  const [isJournalClub, setIsJournalClub] = useState(post.is_journal_club ?? false)
+  const [journalClubDate, setJournalClubDate] = useState(post.journal_club_date ?? '')
   const isFirstRun = useRef(true)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const titleRef = useRef<HTMLTextAreaElement | null>(null)
@@ -64,7 +68,7 @@ export default function PostEditor({ post }: { post: Post }) {
     if (!el) return
     el.style.height = 'auto'
     el.style.height = `${el.scrollHeight}px`
-  }, [title])
+  }, [title, content, journal, doi, authors, pubDate, pmid, citationCount, citationUpdatedAt, isJournalClub, journalClubDate])
 
   useEffect(() => {
     if (isFirstRun.current) {
@@ -83,6 +87,8 @@ export default function PostEditor({ post }: { post: Post }) {
           pub_date: pubDate, pmid,
           citation_count: citationCount,
           citation_updated_at: citationUpdatedAt,
+          is_journal_club: isJournalClub,
+          journal_club_date: isJournalClub && journalClubDate ? journalClubDate : null,
         })
         .eq('id', post.id)
 
@@ -182,6 +188,8 @@ export default function PostEditor({ post }: { post: Post }) {
         pub_date: pubDate, pmid,
         citation_count: citationCount,
         citation_updated_at: citationUpdatedAt,
+        is_journal_club: isJournalClub,
+        journal_club_date: isJournalClub && journalClubDate ? journalClubDate : null,
         status: 'published',
       })
       .eq('id', post.id)
@@ -231,6 +239,37 @@ export default function PostEditor({ post }: { post: Post }) {
       </div>
 
       <PubmedSearchBox onSelect={handlePubmedSelect} />
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          marginBottom: 20,
+          flexWrap: 'wrap',
+        }}
+      >
+        <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 14, cursor: 'pointer' }}>
+          <input
+            type="checkbox"
+            checked={isJournalClub}
+            onChange={(e) => setIsJournalClub(e.target.checked)}
+            style={{ padding: 0 }}
+          />
+          저널클럽 발표 논문
+        </label>
+
+        {isJournalClub && (
+          <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text-muted)' }}>
+            발표일
+            <input
+              type="date"
+              value={journalClubDate}
+              onChange={(e) => setJournalClubDate(e.target.value)}
+              style={{ fontSize: 13, padding: '5px 8px' }}
+            />
+          </label>
+        )}
+      </div>
 
       <textarea
         ref={titleRef}

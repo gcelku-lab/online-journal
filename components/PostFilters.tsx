@@ -34,6 +34,7 @@ export default function PostFilters({
   }, [searchParams])
 
   const currentSort = searchParams.get('sort') ?? 'recent'
+  const journalClubOnly = searchParams.get('jc') === '1'
 
   function applyFilters(overrides: Record<string, string> = {}) {
     const params = new URLSearchParams(searchParams.toString())
@@ -51,7 +52,7 @@ export default function PostFilters({
     router.push(pathname)
   }
 
-  const hasActiveFilter = keyword || journal || yearFrom || yearTo || currentSort !== 'recent'
+  const hasActiveFilter = keyword || journal || yearFrom || yearTo || currentSort !== 'recent' || journalClubOnly
 
   return (
     <div
@@ -92,6 +93,18 @@ export default function PostFilters({
             {opt.label}
           </button>
         ))}
+      </div>
+
+      <div style={{ marginBottom: 12 }}>
+        <label style={{ fontSize: 13, display: 'inline-flwx', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+          <input
+            type="checkbox"
+            checked={journalClubOnly}
+            onChange={(e) => applyFilters({ jc: e.target.checked ? '1' : '' })}
+            style={{ padding: 0 }}
+          />
+          저널클럽 발표 논문만 보기
+        </label>
       </div>
 
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>

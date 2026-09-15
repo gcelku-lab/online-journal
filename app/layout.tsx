@@ -28,7 +28,22 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col"><SiteHeader />{children}</body>
+      <body className="min-h-full flex flex-col">
+        <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
+          <filter id="crimsonize" colorInterpolationFilters="sRGB">
+            <feColorMatrix
+              type="matrix"
+              values="0 0 0 0 0.525
+                      0 0 0 0 0.149
+                      0 0 0 0 0.200
+                     -1 0 0 0 1"
+            />
+          </filter>
+        </svg>
+
+        <SiteHeader />
+        {children}
+      </body>
     </html>
   );
 }
