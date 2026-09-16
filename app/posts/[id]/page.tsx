@@ -4,6 +4,8 @@ import { createClient } from '@/lib/supabase/server'
 import PostContent from '@/components/PostContent'
 import AuthorList from '@/components/AuthorList'
 import { fetchPostTagIds, fetchAllTags } from '@/lib/tags/query'
+import { fetchComments } from '@/lib/comments/query'
+import CommentSection from '@/components/CommentSection'
 
 export default async function PostPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -34,7 +36,7 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
     }
   }
 
-  const [tagIds, allTags] = await Promise.all([fetchPostTagIds(id), fetchAllTags()])
+  const [tagIds, allTags, comments] = await Promise.all([fetchPostTagIds(id), fetchAllTags(), fetchComments(id),])
   const postTags = allTags.filter((t) => tagIds.includes(t.id))
 
   const isAuthor = user?.id === post.author_id
@@ -126,27 +128,6 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
         </div>
       </div>
 
-            {postTags.length > 0 && (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 16 }}>
-          {postTags.map((t) => (
-            <Link
-              key={t.id}
-              href={`/search?tags=${t.id}`}
-              style={{
-                fontSize: 12,
-                padding: '3px 10px',
-                borderRadius: 12,
-                background: 'var(--surface)',
-                border: '1px solid var(--border)',
-                color: 'var(--text-muted)',
-              }}
-            >
-              {t.canonical_name}
-            </Link>
-          ))}
-        </div>
-      )}
-
       {postTags.length > 0 && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 16 }}>
           {postTags.map((t) => (
@@ -171,6 +152,8 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
       <div style={{ marginTop: 28 }}>
         <PostContent content={post.content} figures={figures} />
       </div>
+
+      <CommentSection postId={post.id} comments={comments} currentUserId={user?.id ?? null} />
     </main>
   )
 }

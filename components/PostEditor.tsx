@@ -85,6 +85,35 @@ export default function PostEditor({
   }, [title, content, journal, doi, authors, pubDate, pmid, citationCount, citationUpdatedAt, isJournalClub, journalClubDate])
 
   useEffect(() => {
+    const savedPmid = post.pmid
+    if (!savedPmid || abstract) return
+
+    let cancelled = false
+
+    async function loadAbstract() {
+      try {
+        const res = await fetch(`/api/pubmed-abstract?pmid=${encodeURIComponent(savedPmid!)}`)
+        if (!res.ok) {
+          console.error('초록 재조회 실패:', res.status)
+          return
+        }
+        const data = await res.json()
+        if (cancelled) return
+        setAbstract(data.abstract ?? '')
+        setMeshTerms(data.mesh ?? [])
+      } catch (err) {
+        console.error('초록 재조회 중 오류:', err)
+      }
+    }
+
+    loadAbstract()
+    return () => {
+      cancelled = true
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
     if (isFirstRun.current) {
       isFirstRun.current = false
       return
