@@ -19,6 +19,7 @@ type Post = {
   doi: string | null
   authors: string[] | null
   pub_date: string | null
+  pub_year: number | null
   pmid: string | null
   citation_count: number | null
   citation_updated_at: string | null
@@ -56,6 +57,7 @@ export default function PostEditor({
   const [doi, setDoi] = useState(post.doi ?? '')
   const [authors, setAuthors] = useState<string[]>(post.authors ?? [])
   const [pubDate, setPubDate] = useState(post.pub_date ?? '')
+  const [pubYear, setPubYear] = useState<number | null>(post.pub_year ?? null)
   const [pmid, setPmid] = useState(post.pmid ?? '')
   const [citationCount, setCitationCount] = useState<number | null>(post.citation_count)
   const [citationUpdatedAt, setCitationUpdatedAt] = useState<string | null>(post.citation_updated_at)
@@ -127,7 +129,7 @@ export default function PostEditor({
         .from('posts')
         .update({
           title, content, journal, doi, authors,
-          pub_date: pubDate, pmid,
+          pub_date: pubDate, pub_year: pubYear, pmid,
           citation_count: citationCount,
           citation_updated_at: citationUpdatedAt,
           is_journal_club: isJournalClub,
@@ -147,7 +149,7 @@ export default function PostEditor({
       if (debounceRef.current) clearTimeout(debounceRef.current)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [title, content, journal, doi, authors, pubDate, pmid, citationCount, citationUpdatedAt])
+  }, [title, content, journal, doi, authors, pubDate, pubYear, pmid, citationCount, citationUpdatedAt])
 
   async function fetchCitation(targetDoi: string) {
     if (!targetDoi.trim()) return
@@ -172,6 +174,8 @@ export default function PostEditor({
     setDoi(result.doi ?? '')
     setAuthors(result.authors)
     setPubDate(result.pubDate)
+    const yearMatch = (result.pubDate ?? '').match(/\b(?:19|20)\d{2}\b/)
+    setPubYear(yearMatch ? parseInt(yearMatch[0], 10) : null)
     setPmid(result.pmid)
     setAbstract(result.abstract ?? '')
     setMeshTerms(result.mesh ?? [])
@@ -230,7 +234,7 @@ export default function PostEditor({
       .from('posts')
       .update({
         title, content, journal, doi, authors,
-        pub_date: pubDate, pmid,
+        pub_date: pubDate, pub_year: pubYear, pmid,
         citation_count: citationCount,
         citation_updated_at: citationUpdatedAt,
         is_journal_club: isJournalClub,

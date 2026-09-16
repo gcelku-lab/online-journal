@@ -1,7 +1,7 @@
 import Link from 'next/link'
 
 const NAV = [
-  { href: '/posts', label: '최근 글' },
+  { href: '/posts', label: '전체 글' },
   { href: '/search', label: '검색' },
   { href: '/stats', label: '통계' },
   { href: '/ranking', label: '랭킹' },

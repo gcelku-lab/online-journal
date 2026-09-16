@@ -23,7 +23,11 @@ export async function fetchProfileStats(authorId: string): Promise<ProfileStats 
     return null
   }
 
-  const published = await fetchPosts({ authorId, sort: 'recent' }) // includeDrafts 기본값 false라 게시글만 옴
+  const { posts: published, total } = await fetchPosts({
+    authorId,
+    sort: 'recent',
+    perPage: 200,
+  })
 
   const journalCounts = new Map<string, number>()
   for (const p of published) {
@@ -36,7 +40,7 @@ export async function fetchProfileStats(authorId: string): Promise<ProfileStats 
 
   return {
     displayName: profile.display_name,
-    publishedCount: published.length,
+    publishedCount: total,
     monthlyWins,
     topJournals,
   }

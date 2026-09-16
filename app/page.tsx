@@ -19,7 +19,7 @@ export default async function Home() {
     displayName = profile?.display_name
   }
 
-  const recent = (await fetchPosts({ sort: 'recent' })).slice(0, 5)
+  const { posts: recent } = await fetchPosts({ sort: 'recent', page: 1, perPage: 5 })
 
   return (
     <main style={{ maxWidth: 760, margin: '40px auto 80px', padding: '0 20px' }}>

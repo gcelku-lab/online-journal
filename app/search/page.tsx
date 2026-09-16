@@ -4,6 +4,9 @@ import { fetchPosts, fetchJournals, type SortKey } from '@/lib/posts/query'
 import { fetchAllTags } from '@/lib/tags/query'
 import PostFilters from '@/components/PostFilters'
 import PostList from '@/components/PostList'
+import Pagination from '@/components/Pagination'
+
+const PER_PAGE = 10
 
 export default async function SearchPage({
   searchParams,
@@ -11,6 +14,7 @@ export default async function SearchPage({
   searchParams: Promise<{ [key: string]: string | undefined }>
 }) {
   const params = await searchParams
+  const page = Math.max(1, parseInt(params.page ?? '1', 10) || 1)
 
   const tagIds = (params.tags ?? '').split(',').filter(Boolean)
   const hasQuery = Boolean(
@@ -22,7 +26,7 @@ export default async function SearchPage({
       tagIds.length > 0
   )
 
-  const [posts, journals, allTags] = await Promise.all([
+  const [{ posts, total }, journals, allTags] = await Promise.all([
     hasQuery
       ? fetchPosts({
           keyword: params.q,
@@ -32,8 +36,10 @@ export default async function SearchPage({
           yearFrom: params.yearFrom ? parseInt(params.yearFrom, 10) : undefined,
           yearTo: params.yearTo ? parseInt(params.yearTo, 10) : undefined,
           sort: (params.sort as SortKey) ?? 'recent',
+          page,
+          perPage: PER_PAGE,
         })
-      : Promise.resolve([]),
+      : Promise.resolve({ posts: [], total: 0 }),
     fetchJournals(),
     fetchAllTags(),
   ])
@@ -53,14 +59,17 @@ export default async function SearchPage({
         <p style={{ color: 'var(--text-muted)', fontSize: 14, padding: '24px 0' }}>
           검색어를 입력하거나 태그·저널·연도 조건을 선택하세요.
         </p>
-      ) : posts.length === 0 ? (
+      ) : total === 0 ? (
         <p style={{ color: 'var(--text-muted)', fontSize: 14, padding: '24px 0' }}>
           조건에 맞는 글이 없습니다.
         </p>
       ) : (
         <>
-          <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>{posts.length}개의 결과</p>
+          <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>{total}개의 결과</p>
           <PostList posts={posts} />
+          <Suspense fallback={null}>
+            <Pagination total={total} perPage={PER_PAGE} currentPage={page} />
+          </Suspense>
         </>
       )}
     </main>

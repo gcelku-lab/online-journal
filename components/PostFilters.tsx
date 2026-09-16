@@ -48,7 +48,8 @@ export default function PostFilters({
       if (value) params.set(key, value)
       else params.delete(key)
     }
-
+    
+    params.delete('page')
     router.push(`${pathname}?${params.toString()}`)
   }
 

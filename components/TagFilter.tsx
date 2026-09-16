@@ -29,6 +29,7 @@ export default function TagFilter({ allTags = [] }: { allTags?: Tag[] }) {
     const params = new URLSearchParams(searchParams.toString())
     if (ids.length > 0) params.set('tags', ids.join(','))
     else params.delete('tags')
+    params.delete('page')
     router.push(`${pathname}?${params.toString()}`)
   }
 

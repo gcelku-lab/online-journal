@@ -12,24 +12,32 @@ export default async function MyPage() {
   if (!user) redirect('/login')
 
   const stats = await fetchProfileStats(user.id)
-  const allPosts = await fetchPosts({ authorId: user.id, includeDrafts: true, sort: 'recent' })
+  const { posts: allPosts } = await fetchPosts({
+    authorId: user.id,
+    includeDrafts: true,
+    sort: 'recent',
+    perPage: 200,
+  })
+
   const published = allPosts.filter((p) => p.status === 'published')
   const drafts = allPosts.filter((p) => p.status === 'draft')
 
   return (
-    <main style={{ maxWidth: 720, margin: '40px auto', fontFamily: 'sans-serif', padding: '0 20px' }}>
-      <p><Link href="/">← 홈으로</Link></p>
+    <main style={{ maxWidth: 760, margin: '32px auto 80px', padding: '0 20px' }}>
+      <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 20 }}>
+        <Link href="/">← 홈으로</Link>
+      </p>
       <h1>마이페이지</h1>
 
       {stats && <ProfileCard stats={stats} />}
 
       <section style={{ marginBottom: 32 }}>
-        <h2 style={{ fontSize: 18 }}>게시한 글 ({published.length})</h2>
+        <h2>게시한 글 ({published.length})</h2>
         <PostList posts={published} selectable />
       </section>
 
       <section>
-        <h2 style={{ fontSize: 18 }}>작성 중인 초안 ({drafts.length})</h2>
+        <h2>작성 중인 초안 ({drafts.length})</h2>
         <PostList posts={drafts} selectable />
       </section>
     </main>

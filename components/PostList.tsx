@@ -158,8 +158,9 @@ export default function PostList({
               {post.tags && post.tags.length > 0 && (
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
                   {post.tags.map((t) => (
-                    <span
+                    <Link
                       key={t.id}
+                      href={`/search?tags=${t.id}`}
                       style={{
                         fontSize: 11,
                         padding: '1px 7px',
@@ -170,7 +171,7 @@ export default function PostList({
                       }}
                     >
                       {t.canonical_name}
-                    </span>
+                    </Link>
                   ))}
                 </div>
               )}
