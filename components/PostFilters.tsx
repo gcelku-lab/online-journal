@@ -2,6 +2,8 @@
 
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
+import TagFilter from './TagFilter'
+import type { Tag } from '@/lib/tags/match'
 
 const SORT_OPTIONS = [
   { key: 'recent', label: '최근 수정순' },
@@ -12,9 +14,11 @@ const SORT_OPTIONS = [
 
 export default function PostFilters({
   journals,
+  allTags,
   autoFocusKeyword = false,
 }: {
   journals: string[]
+  allTags: Tag[]
   autoFocusKeyword?: boolean
 }) {
   const router = useRouter()
@@ -52,7 +56,7 @@ export default function PostFilters({
     router.push(pathname)
   }
 
-  const hasActiveFilter = keyword || journal || yearFrom || yearTo || currentSort !== 'recent' || journalClubOnly
+  const hasActiveFilter = keyword || journal || yearFrom || yearTo || currentSort !== 'recent' || journalClubOnly || (searchParams.get('tags') ?? '') !== ''
 
   return (
     <div
@@ -94,6 +98,8 @@ export default function PostFilters({
           </button>
         ))}
       </div>
+
+      <TagFilter allTags={allTags} />
 
       <div style={{ marginBottom: 12 }}>
         <label style={{ fontSize: 13, display: 'inline-flwx', alignItems: 'center', gap: 6, cursor: 'pointer' }}>

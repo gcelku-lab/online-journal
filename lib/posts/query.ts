@@ -11,6 +11,7 @@ export type PostFilters = {
   sort?: SortKey
   includeDrafts?: boolean
   journalClubOnly?: boolean
+  tagIds?: string[]
 }
 
 export type PostListItem = {
@@ -28,6 +29,7 @@ export type PostListItem = {
   created_at: string
   author_id: string
   author_name: string
+  tags: { id: string; canonical_name: string }[]
 }
 
 export function extractYear(pubDate: string | null): number | null {
@@ -51,6 +53,22 @@ export async function fetchPosts(filters: PostFilters = {}): Promise<PostListIte
 
   if (filters.authorId) {
     query = query.eq('author_id', filters.authorId)
+  }
+
+  if (filters.tagIds && filters.tagIds.length > 0) {
+    const { data: matched, error: tagErr } = await supabase
+      .from('post_tags')
+      .select('post_id')
+      .in('tag_id', filters.tagIds)
+
+    if (tagErr) {
+      console.error('태그 필터 조회 실패:', tagErr.message, tagErr.code)
+      return []
+    }
+
+    const ids = [...new Set((matched ?? []).map((r) => r.post_id as string))]
+    if (ids.length === 0) return []
+    query = query.in('id', ids)
   }
 
   if (filters.journalClubOnly) {
@@ -102,9 +120,34 @@ export async function fetchPosts(filters: PostFilters = {}): Promise<PostListIte
     }
   }
 
+    const postIds = posts.map((p) => p.id as string)
+  const tagsByPost = new Map<string, { id: string; canonical_name: string }[]>()
+
+  if (postIds.length > 0) {
+    const { data: tagRows, error: tagRowErr } = await supabase
+      .from('post_tags')
+      .select('post_id, tags(id, canonical_name)')
+      .in('post_id', postIds)
+
+    if (tagRowErr) {
+      console.error('게시물 태그 조회 실패:', tagRowErr.message, tagRowErr.code)
+    } else {
+      for (const row of tagRows ?? []) {
+        const tag = row.tags as unknown as { id: string; canonical_name: string } | null
+        if (!tag) continue
+        const list = tagsByPost.get(row.post_id as string) ?? []
+        list.push(tag)
+        tagsByPost.set(row.post_id as string, list)
+      }
+    }
+  }
+
   let result: PostListItem[] = posts.map((p) => ({
     ...p,
     author_name: nameById.get(p.author_id) ?? '알 수 없음',
+    tags: (tagsByPost.get(p.id as string) ?? []).sort((a, b) =>
+      a.canonical_name.localeCompare(b.canonical_name)
+    ),
   }))
 
   if (filters.yearFrom || filters.yearTo) {

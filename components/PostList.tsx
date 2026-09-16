@@ -155,6 +155,26 @@ export default function PostList({
 
               {post.authors && post.authors.length > 0 && <AuthorList authors={post.authors} />}
 
+              {post.tags && post.tags.length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
+                  {post.tags.map((t) => (
+                    <span
+                      key={t.id}
+                      style={{
+                        fontSize: 11,
+                        padding: '1px 7px',
+                        borderRadius: 10,
+                        background: 'var(--surface)',
+                        border: '1px solid var(--border)',
+                        color: 'var(--text-muted)',
+                      }}
+                    >
+                      {t.canonical_name}
+                    </span>
+                  ))}
+                </div>
+              )}
+
               <p style={{ fontSize: 12, color: 'var(--border-strong)', margin: '4px 0 0' }}>
                 정리: {post.author_name} · {new Date(post.updated_at).toLocaleDateString('ko-KR')}
               </p>

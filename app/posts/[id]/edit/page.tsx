@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { fetchAllTags, fetchPostTagIds } from '@/lib/tags/query'
 import PostEditor from '@/components/PostEditor'
 
 export default async function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
@@ -15,5 +16,7 @@ export default async function EditPostPage({ params }: { params: Promise<{ id: s
     redirect('/')
   }
 
-  return <PostEditor post={post} />
+  const [allTags, postTagIds] = await Promise.all([fetchAllTags(), fetchPostTagIds(id)])
+
+  return <PostEditor post={post} allTags={allTags} initialTagIds={postTagIds} />
 }

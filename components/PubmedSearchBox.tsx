@@ -11,6 +11,8 @@ type Result = {
   doi: string | null
   authors: string[]
   lastAuthor: string | null
+  abstract: string
+  mesh: string[]
 }
 
 export default function PubmedSearchBox({ onSelect }: { onSelect: (result: Result) => void }) {
@@ -85,6 +87,8 @@ export default function PubmedSearchBox({ onSelect }: { onSelect: (result: Resul
       doi: mDoi.trim() || null,
       authors: mAuthors.split(',').map((a) => a.trim()).filter(Boolean),
       lastAuthor: null,
+      abstract: '',
+      mesh: [],
     })
     setManualMode(false)
     setMTitle('')

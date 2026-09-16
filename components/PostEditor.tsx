@@ -8,6 +8,8 @@ import AuthorList from './AuthorList'
 import PdfViewer from './PdfViewer'
 import FigureCropper from './FigureCropper'
 import RichEditor, { type RichEditorHandle} from './RichEditor'
+import TagEditor from './TagEditor'
+import type { Tag } from '@/lib/tags/match'
 
 type Post = {
   id: string
@@ -32,9 +34,19 @@ type PubmedResult = {
   doi: string | null
   authors: string[]
   lastAuthor: string | null
+  abstract: string
+  mesh: string[]
 }
 
-export default function PostEditor({ post }: { post: Post }) {
+export default function PostEditor({
+  post,
+  allTags,
+  initialTagIds,
+}: {
+  post: Post
+  allTags: Tag[]
+  initialTagIds: string[]
+}) {
   const router = useRouter()
   const supabase = createClient()
 
@@ -56,6 +68,8 @@ export default function PostEditor({ post }: { post: Post }) {
   const [pdfNumPages, setPdfNumPages] = useState(0)
   const [pageCanvas, setPageCanvas] = useState<HTMLCanvasElement | null>(null)
   const [renderedPage, setRenderedPage] = useState(0)
+  const [abstract, setAbstract] = useState('')
+  const [meshTerms, setMeshTerms] = useState<string[]>([])
   const [isJournalClub, setIsJournalClub] = useState(post.is_journal_club ?? false)
   const [journalClubDate, setJournalClubDate] = useState(post.journal_club_date ?? '')
   const isFirstRun = useRef(true)
@@ -130,6 +144,8 @@ export default function PostEditor({ post }: { post: Post }) {
     setAuthors(result.authors)
     setPubDate(result.pubDate)
     setPmid(result.pmid)
+    setAbstract(result.abstract ?? '')
+    setMeshTerms(result.mesh ?? [])
     if (result.doi) fetchCitation(result.doi)
   }
 
@@ -347,6 +363,13 @@ export default function PostEditor({ post }: { post: Post }) {
           )}
         </div>
       </div>
+
+      <TagEditor
+        postId={post.id}
+        allTags={allTags}
+        initialTagIds={initialTagIds}
+        suggestSource={{ title, abstract, mesh: meshTerms}}
+      />
 
       <PdfViewer
         onPageRender={(canvas, n) => { setPageCanvas(canvas); setRenderedPage(n) }}
