@@ -70,8 +70,8 @@ export default function RichEditor({
 
   const btn = (active: boolean): React.CSSProperties => ({
     fontSize: 13,
-    padding: '3px 9px',
-    minWidth: 30,
+    padding: '3px 10px',
+    minWidth: 'nowrap',
     background: active ? 'var(--accent)' : '#fff',
     color: active ? '#fff' : 'inherit',
     borderColor: active ? 'var(--accent)' : 'var(--border-strong)',
@@ -90,6 +90,33 @@ export default function RichEditor({
           borderBottom: '1px solid var(--border)',
         }}
       >
+
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+          style={btn(editor.isActive('heading', { level: 2 }))}
+          title="큰 제목"
+        >
+          제목
+        </button>
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+          style={btn(editor.isActive('heading', { level: 3 }))}
+          title="중간 제목"
+        >
+          소제목
+        </button>
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().setParagraph().run()}
+          style={btn(editor.isActive('paragraph'))}
+          title="본문"
+        >
+          본문
+        </button>
+
+        <span style={{ width: 1, alignSelf: 'stretch', background: 'var(--border)', margin: '0 4px' }} />
         <button type="button" onClick={() => editor.chain().focus().toggleBold().run()} style={btn(editor.isActive('bold'))} title="Ctrl+B">
           <strong>B</strong>
         </button>
