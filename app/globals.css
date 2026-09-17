@@ -245,6 +245,26 @@ textarea:focus {
   margin-top: 6px;
 }
 
+/* 연속으로 붙여 쓴 figure들을 한 줄에 */
+.post-figure-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-start;
+  margin: 20px 0;
+}
+
+.post-figure-row .post-figure-inline {
+  flex: 1 1 200px;
+  min-width: 0;
+  margin: 0;
+}
+
+.post-figure-row .post-figure-inline img {
+  width: 100%;
+  height: auto;
+}
+
 .figure-missing {
   font-size: 13px;
   color: var(--accent);
