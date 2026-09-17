@@ -52,7 +52,7 @@ export default function RichEditor({
     ref,
     () => ({
         insertText: (text:string) => {
-            editor?.chain().focus('end').createParagraphNear().insertContent(text).run()
+            editor?.chain().focus().insertContent(`<p>${text}</p>`).run()
         },
     }),
     [editor]
@@ -88,6 +88,9 @@ export default function RichEditor({
           padding: 8,
           background: 'var(--surface)',
           borderBottom: '1px solid var(--border)',
+          position: 'sticky',
+          top: 0,
+          zIndex: 1,
         }}
       >
 

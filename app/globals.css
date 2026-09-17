@@ -127,7 +127,10 @@ textarea:focus {
 
 /* --- 에디터 & 본문 공통 --- */
 .rich-editor {
+  height: 60vh;
   min-height: 420px;
+  max-height: 720px;
+  overflow-y: auto;
   padding: 14px;
   outline: none;
 }

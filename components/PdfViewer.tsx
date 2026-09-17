@@ -64,7 +64,7 @@ export default function PdfViewer({
         const page = await pdfDoc.getPage(pageNum)
         if (cancelled) return
 
-        const scale = 2
+        const scale = 5
         const viewport = page.getViewport({ scale })
         const canvas = canvasRef.current
         if (!canvas) return

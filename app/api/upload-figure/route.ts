@@ -13,6 +13,13 @@ const s3 = new S3Client({
 })
 
 export async function POST(request: NextRequest) {
+  console.log('=== R2 환경변수 확인 ===')
+  console.log('BUCKET_NAME:', JSON.stringify(process.env.R2_BUCKET_NAME))
+  console.log('ACCOUNT_ID 있음:', !!process.env.R2_ACCOUNT_ID)
+  console.log('ACCESS_KEY 있음:', !!process.env.R2_ACCESS_KEY_ID)
+  console.log('SECRET 있음:', !!process.env.R2_SECRET_ACCESS_KEY)
+  console.log('PUBLIC_URL:', JSON.stringify(process.env.NEXT_PUBLIC_R2_PUBLIC_URL))
+
   try {
     const formData = await request.formData()
     const file = formData.get('file') as File | null
