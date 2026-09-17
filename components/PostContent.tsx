@@ -15,7 +15,8 @@ export default function PostContent({
 
   const TAG = String.raw`(?:&lt;|<)\|[^|]+\|(?:&gt;|>)`
   // 태그가 공백/줄바꿈/빈 태그만 사이에 두고 연속으로 나오면 한 그룹으로 본다
-  const GROUP = new RegExp(`${TAG}(?:(?:\\s|&nbsp;|<br\\s*\\/?>)*${TAG})+`, 'g')
+  const SEP = String.raw`(?:[ \t]|&nbsp;)*(?:<br\s*\/?>)?(?:[ \t]|&nbsp;)*`
+  const GROUP = new RegExp(`${TAG}(?:${SEP}${TAG})+`, 'g')
   const SINGLE = new RegExp(TAG, 'g')
   const LABEL = /(?:&lt;|<)\|([^|]+)\|(?:&gt;|>)/
 
