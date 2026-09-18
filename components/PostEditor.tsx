@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import PubmedSearchBox from './PubmedSearchBox'
@@ -10,6 +10,7 @@ import FigureCropper from './FigureCropper'
 import RichEditor, { type RichEditorHandle} from './RichEditor'
 import TagEditor from './TagEditor'
 import type { Tag } from '@/lib/tags/match'
+import { convertLegacyFigures, type FigureMap } from '@/lib/figures/legacy'
 
 type Post = {
   id: string
@@ -43,10 +44,12 @@ export default function PostEditor({
   post,
   allTags,
   initialTagIds,
+  figures,
 }: {
   post: Post
   allTags: Tag[]
   initialTagIds: string[]
+  figures: { label: string; image_url: string }[]
 }) {
   const router = useRouter()
   const supabase = createClient()
@@ -78,6 +81,12 @@ export default function PostEditor({
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const titleRef = useRef<HTMLTextAreaElement | null>(null)
   const editorRef = useRef<RichEditorHandle | null>(null)
+  const [figureList, setFigureList] = useState(figures)
+  const figureMap = useMemo(
+    () => new Map(figureList.map((f) => [f.label.toLowerCase(), f.image_url])),
+    [figureList]
+  )
+
 
   useEffect(() => {
     const el = titleRef.current
@@ -217,7 +226,11 @@ export default function PostEditor({
       return
     }
 
-    editorRef.current?.insertText(`<|${label}|>`)
+    setFigureList((prev) => [
+      ...prev.filter((f) => f.label.toLowerCase() !== label.toLowerCase()),
+      { label, image_url: url },
+    ])
+    editorRef.current?.insertFigure(label, url)
     setNewFigureLabel('')
   }
 
@@ -436,7 +449,7 @@ export default function PostEditor({
         </p>
       </div>
 
-      <RichEditor ref={editorRef} content={content} onChange={setContent} />
+      <RichEditor ref={editorRef} content={content} onChange={setContent} figureMap={figureMap} />
 
       {cropLabel && pageCanvas && (
         <FigureCropper

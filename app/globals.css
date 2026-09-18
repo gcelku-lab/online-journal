@@ -227,42 +227,82 @@ textarea:focus {
   outline: none;
 }
 
-/* --- 본문 figure --- */
-.post-figure {
-  margin: 20px 0;
+/* figure만 들어있는 문단은 가운데로 */
+:is(.rich-editor, .post-content) p:has(> .figure-node, > .post-figure) {
+  text-align: center;
 }
 
-.post-figure img {
+:is(.rich-editor, .post-content) p:has(> .figure-node, > .post-figure) > .figure-node,
+:is(.rich-editor, .post-content) p:has(> .figure-node, > .post-figure) > .post-figure {
+  text-align: left;
+}
+
+/* --- figure (에디터 & 본문 공통) --- */
+.figure-node,
+.post-figure {
+  display: inline-block;
+  vertical-align: top;
+  position: relative;
+  margin: 8px 6px 8px 0;
   max-width: 100%;
+}
+
+.figure-node img,
+.post-figure img {
   display: block;
+  width: 100%;
+  height: auto;
   border: 1px solid var(--border);
   border-radius: 4px;
 }
 
-.post-figure figcaption {
+.figure-node-caption,
+.post-figure-caption {
+  display: block;
   font-size: 12px;
   color: var(--text-muted);
-  margin-top: 6px;
+  margin-top: 4px;
+  line-height: 1.4;
 }
 
-/* 연속으로 붙여 쓴 figure들을 한 줄에 */
-.post-figure-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: flex-start;
-  margin: 20px 0;
+/* 에디터 전용 */
+.figure-node {
+  cursor: default;
+  user-select: none;
 }
 
-.post-figure-row .post-figure-inline {
-  flex: 1 1 200px;
-  min-width: 0;
-  margin: 0;
+.figure-node[data-selected='true'] img {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
 }
 
-.post-figure-row .post-figure-inline img {
-  width: 100%;
-  height: auto;
+.figure-node-pct {
+  margin-left: 6px;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+.figure-node:hover .figure-node-pct {
+  opacity: 1;
+}
+
+.figure-node-handle {
+  position: absolute;
+  right: -5px;
+  bottom: 22px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid #fff;
+  cursor: ew-resize;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+.figure-node:hover .figure-node-handle,
+.figure-node-handle[data-dragging='true'] {
+  opacity: 1;
 }
 
 .figure-missing {

@@ -6,6 +6,8 @@ import StarterKit from '@tiptap/starter-kit'
 import Subscript from '@tiptap/extension-subscript'
 import Superscript from '@tiptap/extension-superscript'
 import { useEffect, useImperativeHandle } from 'react'
+import { FigureRef } from './FigureRefNode'
+import {convertLegacyFigures, type FigureMap } from '@/lib/figures/legacy'
 
 function tightMarkRegex(open: string, closeCharClass: string) {
   return new RegExp(`((?:${open})((?:${closeCharClass}+))(?:${open}))$`)
@@ -23,23 +25,25 @@ const CustomSubscript = Subscript.extend({
   },
 })
 
-export type RichEditorHandle={
-    insertText: (text: string) => void
+export type RichEditorHandle = {
+  insertFigure: (label: string, url: string) => void
 }
 
 export default function RichEditor({
-    content,
-    onChange,
-    ref,
+  content,
+  onChange,
+  figureMap,
+  ref,
 }: {
-    content: string
-    onChange: (html: string) => void
-    ref?: React.Ref<RichEditorHandle>
+  content: string
+  onChange: (html: string) => void
+  figureMap: FigureMap
+  ref?: React.Ref<RichEditorHandle>
 }) {
   const editor = useEditor({
     immediatelyRender: false,
-    extensions: [StarterKit, CustomSubscript, CustomSuperscript],
-    content,
+    extensions: [StarterKit, CustomSubscript, CustomSuperscript, FigureRef],
+    content: convertLegacyFigures(content, figureMap),
     editorProps: {
       attributes: { class: 'rich-editor' },
     },
@@ -51,9 +55,13 @@ export default function RichEditor({
   useImperativeHandle(
     ref,
     () => ({
-        insertText: (text:string) => {
-            editor?.chain().focus().insertContent(`<p>${text}</p>`).run()
-        },
+      insertFigure: (label: string, url: string) => {
+        editor
+          ?.chain()
+          .focus()
+          .insertContent({ type: 'figureRef', attrs: { label, url, width: 100 } })
+          .run()
+      },
     }),
     [editor]
   )

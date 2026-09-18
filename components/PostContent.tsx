@@ -4,6 +4,12 @@ function escapeHtml(s: string) {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 }
 
+function attrOf(tag: string, name: string): string {
+  const m = tag.match(new RegExp(`${name}="([^"]*)"`))
+  if (!m) return ''
+  return m[1].replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&amp;/g, '&')
+}
+
 export default function PostContent({
   content,
   figures,
@@ -13,37 +19,33 @@ export default function PostContent({
 }) {
   const figureMap = new Map(figures.map((f) => [f.label.toLowerCase(), f.image_url]))
 
-  const TAG = String.raw`(?:&lt;|<)\|[^|]+\|(?:&gt;|>)`
-  const GROUP = new RegExp(`${TAG}(?:${TAG})+`, 'g')
-  const SINGLE = new RegExp(TAG, 'g')
-  const LABEL = /(?:&lt;|<)\|([^|]+)\|(?:&gt;|>)/
-
-  function figureHtml(rawLabel: string, inGroup: boolean): string {
-    const label = rawLabel.trim()
-    const url = figureMap.get(label.toLowerCase())
+  function figureHtml(label: string, width: number, fallbackUrl: string) {
+    const url = figureMap.get(label.trim().toLowerCase()) ?? fallbackUrl
 
     if (!url) {
       return `<span class="figure-missing">[${escapeHtml(label)} — 이미지 없음]</span>`
     }
 
-    const cls = inGroup ? 'post-figure post-figure-inline' : 'post-figure'
-    return `<figure class="${cls}"><img src="${escapeHtml(url)}" alt="${escapeHtml(
+    return `<span class="post-figure" style="width:${width}%"><img src="${escapeHtml(
+      url
+    )}" alt="${escapeHtml(label)}" /><span class="post-figure-caption">${escapeHtml(
       label
-    )}" /><figcaption>${escapeHtml(label)}</figcaption></figure>`
+    )}</span></span>`
   }
 
-  // 1단계: 연속 그룹을 가로 배치로
-  let rendered = content.replace(GROUP, (block) => {
-    const labels = [...block.matchAll(new RegExp(LABEL.source, 'g'))].map((m) => m[1])
-    const inner = labels.map((l) => figureHtml(l, true)).join('')
-    return `<div class="post-figure-row">${inner}</div>`
+  // 새 형식
+  let rendered = content.replace(/<span[^>]*data-figure-ref[^>]*>\s*<\/span>/g, (tag) => {
+    const label = attrOf(tag, 'data-label')
+    const url = attrOf(tag, 'data-url')
+    const width = parseInt(attrOf(tag, 'data-width') || '100', 10) || 100
+    return figureHtml(label, Math.min(100, Math.max(10, width)), url)
   })
 
-  // 2단계: 남은 단독 태그 처리
-  rendered = rendered.replace(SINGLE, (tag) => {
-    const m = tag.match(LABEL)
-    return m ? figureHtml(m[1], false) : tag
-  })
+  // 옛 형식 (아직 편집하지 않은 글)
+  rendered = rendered.replace(
+    /(?:&lt;|<)\|([^|]+)\|(?:(\d{1,3})\|)?(?:&gt;|>)/g,
+    (_m, label: string, w?: string) => figureHtml(label, w ? parseInt(w, 10) : 100, '')
+  )
 
   return <div className="post-content" dangerouslySetInnerHTML={{ __html: rendered }} />
 }
